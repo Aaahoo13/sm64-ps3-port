@@ -15,22 +15,17 @@ A prior copy of the game is required to extract the assets.
 ```
 git clone https://github.com/Aaahoo13/sm64-ps3-port.git -b ps3 --recursive && cd sm64-ps3-port
 ```
-2. Clone the repo ps3toolchain:
+2. Clone the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain):
 ```
 git clone https://github.com/ps3dev/ps3toolchain.git
 ```
-3. Add 3 lines in ps3toolchain's script "009-ps3libraries.sh" to update the links in order to download `libxml2-2.7.8`, use `tar.xz` in lieu of `tar.gz`, and download `freetype-2.4.3`:
+3. Add 2 lines in ps3toolchain's script "009-ps3libraries.sh" to update the links in order to download `libxml2-2.7.8` and `freetype-2.4.3` (while waiting for [ps3libraries repo](https://github.com/ps3dev/ps3libraries) to be updated):
 ```
-awk '
-/rm -Rf ps3libraries && mkdir ps3libraries && tar --strip-components=1 --directory=ps3libraries -xvzf ps3libraries.tar.gz && cd ps3libraries/ {
-    print
-    print "sed -i '\''s|http://xmlsoft.org/download/libxml2-2.7.8.tar.gz|https://download.gnome.org/sources/libxml2/2.7/libxml2-2.7.8.tar.xz|g'\'' scripts/012-libxml2-2.7.8.sh"
-    print "sed -i '\''s|xfvz libxml2-2.7.8.tar.gz|xfvJ libxml2-2.7.8.tar.xz|g'\'' scripts/012-libxml2-2.7.8.sh"
-    print "sed -i '\''s|http://download.savannah.gnu.org/releases/freetype/freetype-old/freetype-2.4.3.tar.gz|https://download-mirror.savannah.gnu.org/releases/freetype/freetype-old/freetype-2.4.3.tar.gz|g'\'' scripts/004-freetype-2.4.3.sh"
-    next
-}
-{ print }
-' ps3toolchain/scripts/009-ps3libraries.sh > /tmp/ps3lib && mv /tmp/ps3lib ps3toolchain/scripts/009-ps3libraries.sh
+sed -i '
+/^rm/ a\
+sed -i "s/download/sources/g" scripts/012-libxml2-2.7.8.sh\
+sed -i "s/download/download-mirror/g" scripts/004-freetype-2.4.3.sh
+' ps3toolchain/scripts/009-ps3libraries.sh
 ```
 4. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
 ```
@@ -42,24 +37,19 @@ docker build . -t sm64_ps3
 ```
 6. Compile using your Docker image.  
 You can precise the region with `VERSION=<region>`, where &lt;region> can be us, jp, or eu (us is default).  
-You can also add `-j4` if ou have 4 cores, for instance, or `-j$(nproc)` if you want to use all the cores and you base your Docker image on Debian instead of Ubuntu.
+You can also add `-j4` if ou have 4 cores, for instance, or `-j$(nproc)` if you want to use all the cores.  
+In order to produce the .pkg file, you can have the default PSL1GHT icon without music nor background picture:
 ```
-docker run --rm -ti -v $(pwd):/sm64 sm64_ps3 make VERSION=<region> -j4
-```
-The resulting .self will be in `build/<region>_ps3/`.
-
-7. In order to produce the .pkg file, you can have the default PSL1GHT icon without music nor background picture:
-```
-docker run --rm -ti -v $(pwd):/sm64 sm64_ps3 make build/<region>_ps3/sm64.<region>.f3dex2e.pkg
+docker run --rm -v $(pwd):/sm64 sm64_ps3 make VERSION=<region> build/<region>_ps3/sm64.<region>.f3dex2e.pkg -j$(nproc)
 ```
 To avoid having the default PSL1GHT icon, copy the correct icon (320×176) with the name "ICON0.PNG" into the repository's root directory, and change the Makefile:
 ```
 sed -i 's/ICON0[[:space:]]*:=/ICON0     ?=/g' Makefile
 ```
 ```
-docker run --rm -ti -v $(pwd):/sm64 sm64_ps3 make build/<region>_ps3/sm64.<region>.f3dex2e.pkg ICON0=ICON0.PNG
+docker run --rm -v $(pwd):/sm64 sm64_ps3 make VERSION=<region> build/<region>_ps3/sm64.<region>.f3dex2e.pkg ICON0=ICON0.PNG -j$(nproc)
 ```
-To add the possibility of having a music and background picture, you'll have to copy the audio file (ATRAC3 / ATRAC3+) and picture (1920×1080), then modify the Makefile:
+To add the possibility of having a background picture and music, you'll have to copy the picture (1920×1080) with the name "PIC1.PNG" and audio file (ATRAC3 / ATRAC3+) with the name "SND0.AT3" into the repository's root directory, then modify the Makefile:
 ```
 sed -i '/ICON0[[:space:]]*?=/a\
   PIC1      ?= PIC1.PNG\
@@ -70,9 +60,9 @@ sed -i '/cp $(ICON0)*/a\
 \tcp $(PIC1) $(BUILD_DIR)/pkg/PIC1.PNG\
 \tcp $(SND0) $(BUILD_DIR)/pkg/SND0.AT3' Makefile
 ```
-You can then produce the .pkg file with the desired icon, music and background picture. Add `-j4` to improve build speed (hardware dependent based on the amount of CPU cores available):
+You can then produce the .pkg file with the desired icon, music and background picture:
 ```
-docker run --rm -ti -v $(pwd):/sm64 sm64_ps3 make build/<region>_ps3/sm64.<region>.f3dex2e.pkg ICON0=ICON0.PNG -j4
+docker run --rm -v $(pwd):/sm64 sm64_ps3 make VERSION=<region> build/<region>_ps3/sm64.<region>.f3dex2e.pkg ICON0=ICON0.PNG -j$(nproc)
 ```
 
 ## Manually under Linux (WSL and MSYS2 not tested)
@@ -86,19 +76,18 @@ sudo apt install git build-essential python3
 ```
 git clone https://github.com/Aaahoo13/sm64-ps3-port.git -b ps3 --recursive && cd sm64-ps3-port
 ```
-2. Clone the repo ps3toolchain:
+2. Clone the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain):
 ```
 git clone https://github.com/ps3dev/ps3toolchain.git
 ```
-3. Same step as the step 3 in the Docker version to update the links in order to download `libxml2-2.7.8`, use `tar.xz` in lieu of `tar.gz`, and download `freetype-2.4.3`.
-4. Ensure PSL1GHT is installed on your system and the environmental variables `PS3DEV` and `PSL1GHT` are defined and PSL1GHT is in your `PATH`.
-You can follow the installation instructions in the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain).
+3. Same step as the step 3 in the Docker version to update the links in order to download `libxml2-2.7.8` and `freetype-2.4.3`.
+4. Ensure PSL1GHT is installed on your system and the environmental variables `PS3DEV` and `PSL1GHT` are defined and PSL1GHT is in your `PATH`. You can follow the installation instructions in the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain).
 5. Install [Cg Toolkit](https://developer.nvidia.com/cg-toolkit-download).
-6. Copy in your `baserom.&lt;region>.z64`, where &lt;region> can be us, jp, or eu:
+6. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
 ```
 cp /path/to/baserom.<region>.z64 .
 ```
-7. Follow the same last 2 steps as the Docker version (6 & 7) without `"docker run --rm -ti -v $(pwd):/sm64 sm64_ps3"` at the beginning of the commands.
+7. Follow the same last step as the Docker version without `docker run --rm -v $(pwd):/sm64 sm64_ps3` at the beginning of the commands.
 
 ## Project Structure
 
