@@ -56,4 +56,4 @@ ENV PATH=${PATH}:${PS3DEV}/bin:${PS3DEV}/ppu/bin:${PS3DEV}/spu/bin
 RUN mkdir /sm64
 WORKDIR /sm64
 
-CMD echo 'usage: docker run --rm -ti -v $(pwd):/sm64 sm64_ps3 make VERSION=${VERSION:-xx}\n'
+CMD echo 'usage: docker run --rm -v $(pwd):/sm64 sm64_ps3 make VERSION=xx build/xx_ps3/sm64.xx.f3dex2e.pkg ICON0=ICON0.PNG -j$(nproc)\n'
