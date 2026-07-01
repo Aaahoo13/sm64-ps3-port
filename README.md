@@ -19,23 +19,15 @@ git clone https://github.com/Aaahoo13/sm64-ps3-port.git -b ps3 --recursive && cd
 ```
 git clone https://github.com/ps3dev/ps3toolchain.git
 ```
-3. Add 2 lines in ps3toolchain's script "009-ps3libraries.sh" to update the links in order to download `libxml2-2.7.8` and `freetype-2.4.3` (while waiting for [ps3libraries repo](https://github.com/ps3dev/ps3libraries) to be updated):
-```
-sed -i '
-/^rm/ a\
-sed -i "s/download/sources/g" scripts/012-libxml2-2.7.8.sh\
-sed -i "s/download/download-mirror/g" scripts/004-freetype-2.4.3.sh
-' ps3toolchain/scripts/009-ps3libraries.sh
-```
-4. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
+3. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
 ```
 cp /path/to/baserom.<region>.z64 .
 ```
-5. Build Docker image:
+4. Build Docker image:
 ```
 docker build . -t sm64_ps3
 ```
-6. Compile using your Docker image.  
+5. Compile using your Docker image.  
 You can precise the region with `VERSION=<region>`, where &lt;region> can be us, jp, or eu (us is default).  
 You can also add `-j4` if ou have 4 cores, for instance, or `-j$(nproc)` if you want to use all the cores.  
 In order to produce the .pkg file, you can have the default PSL1GHT icon without music nor background picture:
@@ -80,14 +72,13 @@ git clone https://github.com/Aaahoo13/sm64-ps3-port.git -b ps3 --recursive && cd
 ```
 git clone https://github.com/ps3dev/ps3toolchain.git
 ```
-3. Same step as the step 3 in the Docker version to update the links in order to download `libxml2-2.7.8` and `freetype-2.4.3`.
-4. Ensure PSL1GHT is installed on your system and the environmental variables `PS3DEV` and `PSL1GHT` are defined and PSL1GHT is in your `PATH`. You can follow the installation instructions in the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain).
-5. Install [Cg Toolkit](https://developer.nvidia.com/cg-toolkit-download).
-6. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
+3. Ensure PSL1GHT is installed on your system and the environmental variables `PS3DEV` and `PSL1GHT` are defined and PSL1GHT is in your `PATH`. You can follow the installation instructions in the [ps3toolchain repo](https://github.com/ps3dev/ps3toolchain).
+4. Install [Cg Toolkit](https://developer.nvidia.com/cg-toolkit-download).
+5. Copy in your `baserom.<region>.z64`, where &lt;region> can be us, jp, or eu:
 ```
 cp /path/to/baserom.<region>.z64 .
 ```
-7. Follow the same last step as the Docker version without `docker run --rm -v $(pwd):/sm64 sm64_ps3` at the beginning of the commands.
+6. Follow the same last step as the Docker version without `docker run --rm -v $(pwd):/sm64 sm64_ps3` at the beginning of the commands.
 
 ## Project Structure
 
