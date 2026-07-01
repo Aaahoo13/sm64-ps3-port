@@ -115,7 +115,8 @@ sm64
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to
-discuss what you would like to change.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Official Discord: [https://discord.gg/7bcNTPK](https://discord.gg/7bcNTPK)
 
 Run `clang-format` on your code to ensure it meets the project's coding standards.
